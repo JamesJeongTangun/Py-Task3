@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+      - logs_volume:/app/logs
+    environment:
+      - DEBUG=False
+      - SECRET_KEY=your-production-secret-key-here
+      - ALLOWED_HOSTS=localhost,127.0.0.1
+      - DB_ENGINE=django.db.backends.sqlite3
+      - DB_NAME=/app/db/db.sqlite3
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=memojjang
+      - POSTGRES_USER=memojjang_user
+      - POSTGRES_PASSWORD=your-password-here
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    depends_on:
+      - web
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
+  logs_volume:
