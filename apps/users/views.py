@@ -1,10 +1,11 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
+from django.views import View
 from .forms import CustomUserCreationForm
 
 
@@ -16,8 +17,29 @@ class CustomLoginView(LoginView):
         return reverse_lazy('memos:list')
 
 
-class CustomLogoutView(LogoutView):
-    next_page = reverse_lazy('home')
+class CustomLogoutView(View):
+    """로그아웃 처리"""
+    
+    def get(self, request):
+        if request.user.is_authenticated:
+            return render(request, 'users/logout_confirm.html')
+        return redirect('home')
+    
+    def post(self, request):
+        username = request.user.username if request.user.is_authenticated else None
+        logout(request)
+        if username:
+            messages.success(request, f'{username}님, 안전하게 로그아웃되었습니다.')
+        return redirect('home')
+
+
+def quick_logout(request):
+    """즉시 로그아웃 (확인 없이)"""
+    username = request.user.username if request.user.is_authenticated else None
+    logout(request)
+    if username:
+        messages.info(request, f'{username}님, 로그아웃되었습니다.')
+    return redirect('home')
 
 
 class SignUpView(CreateView):

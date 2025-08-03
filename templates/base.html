@@ -43,9 +43,17 @@
                                 {{ user.username }}님
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{% url 'users:profile' %}">프로필</a></li>
+                                <li><a class="dropdown-item" href="{% url 'users:profile' %}">
+                                    <i class="fas fa-user me-2"></i>프로필
+                                </a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{% url 'users:logout' %}">로그아웃</a></li>
+                                <li><a class="dropdown-item" href="{% url 'users:logout' %}">
+                                    <i class="fas fa-sign-out-alt me-2"></i>로그아웃
+                                </a></li>
+                                <li><a class="dropdown-item text-muted" href="{% url 'users:quick_logout' %}" 
+                                       onclick="return confirm('정말 로그아웃하시겠습니까?')">
+                                    <i class="fas fa-bolt me-2"></i>빠른 로그아웃
+                                </a></li>
                             </ul>
                         </li>
                     {% else %}

@@ -43,6 +43,33 @@ class MemoDetailView(LoginRequiredMixin, DetailView):
         return Memo.objects.filter(author=self.request.user)
 
 
+@login_required
+def memo_create_simple(request):
+    """간단한 메모 생성 뷰 (디버깅용)"""
+    if request.method == 'POST':
+        print(f"DEBUG: POST 데이터 수신")
+        print(f"DEBUG: 사용자: {request.user}")
+        print(f"DEBUG: POST 내용: {dict(request.POST)}")
+        
+        form = MemoForm(request.POST)
+        print(f"DEBUG: 폼 유효성: {form.is_valid()}")
+        
+        if form.is_valid():
+            memo = form.save(commit=False)
+            memo.author = request.user
+            memo.save()
+            print(f"DEBUG: 메모 저장 성공 - ID: {memo.id}")
+            messages.success(request, f'메모 "{memo.title}"가 성공적으로 저장되었습니다!')
+            return redirect('memos:list')
+        else:
+            print(f"DEBUG: 폼 오류: {form.errors}")
+            messages.error(request, '폼에 오류가 있습니다.')
+    else:
+        form = MemoForm()
+    
+    return render(request, 'memos/memo_form.html', {'form': form})
+
+
 class MemoCreateView(LoginRequiredMixin, CreateView):
     model = Memo
     form_class = MemoForm
@@ -52,7 +79,18 @@ class MemoCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.author = self.request.user
         messages.success(self.request, '메모가 성공적으로 작성되었습니다.')
+        print(f"DEBUG: 메모 생성 성공 - 제목: {form.instance.title}")
         return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        messages.error(self.request, '메모 저장 중 오류가 발생했습니다. 입력 내용을 확인해 주세요.')
+        print(f"DEBUG: 메모 생성 실패 - 오류: {form.errors}")
+        return super().form_invalid(form)
+    
+    def post(self, request, *args, **kwargs):
+        print(f"DEBUG: 메모 생성 POST 요청 - 사용자: {request.user}")
+        print(f"DEBUG: POST 데이터: {request.POST}")
+        return super().post(request, *args, **kwargs)
 
 
 class MemoUpdateView(LoginRequiredMixin, UpdateView):
