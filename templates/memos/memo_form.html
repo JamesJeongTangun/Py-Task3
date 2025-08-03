@@ -5,6 +5,23 @@
     {% if object %}메모 수정{% else %}새 메모 작성{% endif %} - 메모짱
 {% endblock %}
 
+{% block breadcrumb %}
+<div class="container mt-3">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">홈</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'memos:list' %}">메모 목록</a></li>
+            {% if object %}
+                <li class="breadcrumb-item"><a href="{% url 'memos:detail' object.pk %}">{{ object.title|truncatechars:20 }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">수정</li>
+            {% else %}
+                <li class="breadcrumb-item active" aria-current="page">새 메모 작성</li>
+            {% endif %}
+        </ol>
+    </nav>
+</div>
+{% endblock %}
+
 {% block content %}
 <div class="row">
     <div class="col-lg-8 mx-auto">

@@ -2,6 +2,18 @@
 
 {% block title %}{{ memo.title }} - 메모짱{% endblock %}
 
+{% block breadcrumb %}
+<div class="container mt-3">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">홈</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'memos:list' %}">메모 목록</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ memo.title|truncatechars:30 }}</li>
+        </ol>
+    </nav>
+</div>
+{% endblock %}
+
 {% block content %}
 <div class="row">
     <div class="col-lg-8 mx-auto">
