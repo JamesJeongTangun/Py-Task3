@@ -78,7 +78,9 @@ class MemoFormTest(TestCase):
         """유효한 데이터로 메모 폼 테스트"""
         form = MemoForm(data={
             'title': '테스트 메모',
-            'content': '테스트 내용입니다.'
+            'content': '테스트 내용입니다.',
+            'priority': 'normal',
+            'is_pinned': False
         })
         self.assertTrue(form.is_valid())
     
@@ -136,7 +138,9 @@ class MemoViewTest(TestCase):
         self.client.login(username='testuser', password='testpass123')
         response = self.client.post(reverse('memos:create'), {
             'title': '새 테스트 메모',
-            'content': '새 테스트 내용입니다.'
+            'content': '새 테스트 내용입니다.',
+            'priority': 'normal',
+            'is_pinned': False
         })
         self.assertEqual(response.status_code, 302)  # 성공 후 리다이렉트
         self.assertTrue(Memo.objects.filter(title='새 테스트 메모').exists())
@@ -146,12 +150,16 @@ class MemoViewTest(TestCase):
         self.client.login(username='testuser', password='testpass123')
         response = self.client.post(reverse('memos:edit', kwargs={'pk': self.memo.pk}), {
             'title': '수정된 제목',
-            'content': '수정된 내용'
+            'content': '수정된 내용',
+            'priority': 'high',
+            'is_pinned': True
         })
         self.assertEqual(response.status_code, 302)
         self.memo.refresh_from_db()
         self.assertEqual(self.memo.title, '수정된 제목')
         self.assertEqual(self.memo.content, '수정된 내용')
+        self.assertEqual(self.memo.priority, 'high')
+        self.assertTrue(self.memo.is_pinned)
     
     def test_memo_delete_view(self):
         """메모 삭제 뷰 테스트"""

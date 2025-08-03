@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}메모 통계 - 메모짱{% endblock %}
+
+{% block breadcrumb %}
+<div class="container mt-3">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">홈</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'memos:list' %}">메모 목록</a></li>
+            <li class="breadcrumb-item active" aria-current="page">통계</li>
+        </ol>
+    </nav>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- 기본 통계 카드 -->
+    <div class="col-md-3 mb-4">
+        <div class="card text-center bg-primary text-white">
+            <div class="card-body">
+                <i class="fas fa-file-alt fa-2x mb-2"></i>
+                <h3 class="card-title">{{ total_count }}</h3>
+                <p class="card-text">총 메모 수</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card text-center bg-success text-white">
+            <div class="card-body">
+                <i class="fas fa-font fa-2x mb-2"></i>
+                <h3 class="card-title">{{ total_words|floatformat:0 }}</h3>
+                <p class="card-text">총 단어 수</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card text-center bg-info text-white">
+            <div class="card-body">
+                <i class="fas fa-clock fa-2x mb-2"></i>
+                <h3 class="card-title">{{ recent_count }}</h3>
+                <p class="card-text">최근 7일</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card text-center bg-warning text-white">
+            <div class="card-body">
+                <i class="fas fa-calculator fa-2x mb-2"></i>
+                <h3 class="card-title">{{ avg_words_per_memo }}</h3>
+                <p class="card-text">평균 단어/메모</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <!-- 월별 통계 차트 -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-bar"></i> 월별 메모 작성 현황
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="monthlyChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- 활동 요약 -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-trophy"></i> 활동 요약
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>작성 등급:</strong>
+                    {% if total_count >= 100 %}
+                        <span class="badge bg-gold">메모 마스터</span>
+                    {% elif total_count >= 50 %}
+                        <span class="badge bg-success">메모 전문가</span>
+                    {% elif total_count >= 20 %}
+                        <span class="badge bg-info">메모 애호가</span>
+                    {% elif total_count >= 5 %}
+                        <span class="badge bg-primary">메모 초보자</span>
+                    {% else %}
+                        <span class="badge bg-secondary">메모 입문자</span>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <strong>이번 주 활동:</strong>
+                    {% if recent_count > 0 %}
+                        <span class="text-success">활발함 🔥</span>
+                    {% else %}
+                        <span class="text-muted">조용함 😴</span>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <strong>작성 패턴:</strong>
+                    {% if avg_words_per_memo > 100 %}
+                        <span class="text-info">상세형 📝</span>
+                    {% elif avg_words_per_memo > 50 %}
+                        <span class="text-primary">균형형 ⚖️</span>
+                    {% else %}
+                        <span class="text-warning">간결형 ✏️</span>
+                    {% endif %}
+                </div>
+                
+                <hr>
+                
+                <div class="text-center">
+                    <a href="{% url 'memos:list' %}" class="btn btn-primary">
+                        <i class="fas fa-list"></i> 메모 목록
+                    </a>
+                    <a href="{% url 'memos:create' %}" class="btn btn-success">
+                        <i class="fas fa-plus"></i> 새 메모
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 월별 차트 데이터
+    const monthlyData = {{ monthly_stats_json|safe }};
+    
+    const ctx = document.getElementById('monthlyChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: monthlyData.map(item => item.month),
+            datasets: [{
+                label: '메모 수',
+                data: monthlyData.map(item => item.count),
+                backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

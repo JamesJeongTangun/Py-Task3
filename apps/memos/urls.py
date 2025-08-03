@@ -9,4 +9,8 @@ urlpatterns = [
     path('<int:pk>/', views.memo_detail, name='detail'),
     path('<int:pk>/edit/', views.memo_edit, name='edit'),
     path('<int:pk>/delete/', views.memo_delete, name='delete'),
+    
+    # AJAX 및 고급 기능
+    path('search/ajax/', views.memo_search_ajax, name='search_ajax'),
+    path('stats/', views.memo_stats, name='stats'),
 ]

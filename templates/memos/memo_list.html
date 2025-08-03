@@ -19,10 +19,12 @@
                     <i class="fas fa-search"></i>
                 </span>
                 <input type="text" name="search" class="form-control" 
+                       id="search-input"
                        placeholder="제목이나 내용으로 검색... (Ctrl+/ 단축키)" 
                        value="{{ search_query }}"
                        data-bs-toggle="tooltip" 
-                       title="키워드로 메모를 검색하세요">
+                       title="키워드로 메모를 검색하세요"
+                       autocomplete="off">
             </div>
         </div>
         <div class="col-md-4">
@@ -38,6 +40,18 @@
             </div>
         </div>
     </form>
+    
+    <!-- 실시간 검색 결과 -->
+    <div id="live-search-results" class="mt-3" style="display: none;">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">실시간 검색 결과</h6>
+            </div>
+            <div class="card-body">
+                <div id="search-results-container"></div>
+            </div>
+        </div>
+    </div>
 </div>
 
 {% if search_query %}
@@ -146,4 +160,79 @@
         {% endif %}
     </div>
 {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('search-input');
+    const liveResults = document.getElementById('live-search-results');
+    const resultsContainer = document.getElementById('search-results-container');
+    let searchTimeout;
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const query = this.value.trim();
+            
+            // 검색어가 비어있으면 결과 숨김
+            if (query.length === 0) {
+                liveResults.style.display = 'none';
+                return;
+            }
+            
+            // 이전 타이머 제거
+            clearTimeout(searchTimeout);
+            
+            // 500ms 후 검색 실행 (타이핑 완료 후)
+            searchTimeout = setTimeout(function() {
+                performLiveSearch(query);
+            }, 500);
+        });
+    }
+    
+    function performLiveSearch(query) {
+        if (query.length < 2) return;
+        
+        fetch(`{% url 'memos:search_ajax' %}?q=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(data => {
+                displaySearchResults(data);
+            })
+            .catch(error => {
+                console.error('검색 오류:', error);
+            });
+    }
+    
+    function displaySearchResults(data) {
+        if (data.results.length === 0) {
+            resultsContainer.innerHTML = '<p class="text-muted">검색 결과가 없습니다.</p>';
+        } else {
+            let html = '<div class="list-group">';
+            data.results.forEach(memo => {
+                html += `
+                    <a href="${memo.url}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h6 class="mb-1">${memo.title}</h6>
+                            <small>${memo.updated_at}</small>
+                        </div>
+                        <p class="mb-1">${memo.content}</p>
+                    </a>
+                `;
+            });
+            html += '</div>';
+            html += `<small class="text-muted mt-2 d-block">${data.count}개 결과</small>`;
+            resultsContainer.innerHTML = html;
+        }
+        
+        liveResults.style.display = 'block';
+    }
+    
+    // 검색 결과 외부 클릭 시 숨김
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.search-form')) {
+            liveResults.style.display = 'none';
+        }
+    });
+});
+</script>
 {% endblock %}
