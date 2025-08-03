@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}메모짱 - 홈{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto text-center">
+        <h1 class="display-4 mb-4">📝 메모짱에 오신 것을 환영합니다!</h1>
+        <p class="lead mb-4">간단하고 효율적인 메모 관리 서비스입니다.</p>
+        
+        {% if not user.is_authenticated %}
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">시작하기</h5>
+                            <p class="card-text">메모짱을 사용하려면 로그인하거나 회원가입을 해주세요.</p>
+                            <a href="{% url 'users:login' %}" class="btn btn-primary me-2">로그인</a>
+                            <a href="{% url 'users:register' %}" class="btn btn-outline-primary">회원가입</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ user.username }}님, 안녕하세요! 👋</h5>
+                            <p class="card-text">메모를 작성하고 관리해보세요.</p>
+                            <a href="{% url 'memos:list' %}" class="btn btn-primary me-2">내 메모 보기</a>
+                            <a href="{% url 'memos:create' %}" class="btn btn-success">새 메모 작성</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        
+        <div class="row mt-5">
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">📝 간편한 작성</h5>
+                        <p class="card-text">직관적인 인터페이스로 빠르게 메모를 작성할 수 있습니다.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">🔍 쉬운 검색</h5>
+                        <p class="card-text">제목과 내용으로 원하는 메모를 빠르게 찾을 수 있습니다.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">🔒 안전한 보관</h5>
+                        <p class="card-text">개인 계정으로 안전하게 메모를 보관하고 관리할 수 있습니다.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

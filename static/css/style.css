@@ -1,0 +1,67 @@
+/* 메모짱 커스텀 스타일 */
+
+/* 기본 스타일 */
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: #f8f9fa;
+}
+
+/* 네비게이션 */
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+/* 카드 스타일 */
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    transition: box-shadow 0.15s ease-in-out;
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* 버튼 스타일 */
+.btn {
+    border-radius: 0.375rem;
+    transition: all 0.15s ease-in-out;
+}
+
+/* 알림 스타일 */
+.alert {
+    border-radius: 0.5rem;
+}
+
+/* 푸터 */
+footer {
+    margin-top: auto;
+}
+
+/* 반응형 테이블 */
+@media (max-width: 768px) {
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+}
+
+/* 메모 관련 스타일 */
+.memo-card {
+    transition: transform 0.2s ease-in-out;
+}
+
+.memo-card:hover {
+    transform: translateY(-2px);
+}
+
+.memo-content {
+    max-height: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 로딩 스피너 */
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+}
