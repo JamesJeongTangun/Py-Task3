@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+    {% if object %}메모 수정{% else %}새 메모 작성{% endif %} - 메모짱
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">
+                    {% if object %}
+                        <i class="fas fa-edit"></i> 메모 수정
+                    {% else %}
+                        <i class="fas fa-plus"></i> 새 메모 작성
+                    {% endif %}
+                </h3>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.title.id_for_label }}" class="form-label">{{ form.title.label }}</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                            <div class="text-danger">
+                                {% for error in form.title.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.content.id_for_label }}" class="form-label">{{ form.content.label }}</label>
+                        {{ form.content }}
+                        {% if form.content.errors %}
+                            <div class="text-danger">
+                                {% for error in form.content.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'memos:list' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> 취소
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            {% if object %}
+                                <i class="fas fa-save"></i> 수정 완료
+                            {% else %}
+                                <i class="fas fa-save"></i> 메모 저장
+                            {% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- 미리보기 기능 (선택사항) -->
+        {% if object %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">기존 내용 미리보기</h5>
+                </div>
+                <div class="card-body">
+                    <h6>{{ object.title }}</h6>
+                    <div class="text-muted">
+                        {{ object.content|linebreaks|truncatewords:50 }}
+                    </div>
+                    <small class="text-muted">
+                        작성일: {{ object.created_at|date:"Y년 m월 d일 H:i" }}
+                    </small>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// 자동 저장 기능 (추후 구현)
+document.addEventListener('DOMContentLoaded', function() {
+    const titleField = document.getElementById('{{ form.title.id_for_label }}');
+    const contentField = document.getElementById('{{ form.content.id_for_label }}');
+    
+    // 글자 수 카운터
+    function updateCharCount() {
+        const titleLength = titleField.value.length;
+        const contentLength = contentField.value.length;
+        
+        // 제목 글자 수 표시 (최대 200자)
+        const titleCounter = document.querySelector('#title-counter');
+        if (!titleCounter) {
+            const counter = document.createElement('small');
+            counter.id = 'title-counter';
+            counter.className = 'text-muted';
+            titleField.parentNode.appendChild(counter);
+        }
+        document.querySelector('#title-counter').textContent = `${titleLength}/200자`;
+        
+        // 내용 글자 수 표시
+        const contentCounter = document.querySelector('#content-counter');
+        if (!contentCounter) {
+            const counter = document.createElement('small');
+            counter.id = 'content-counter';
+            counter.className = 'text-muted';
+            contentField.parentNode.appendChild(counter);
+        }
+        document.querySelector('#content-counter').textContent = `${contentLength}자`;
+    }
+    
+    titleField.addEventListener('input', updateCharCount);
+    contentField.addEventListener('input', updateCharCount);
+    updateCharCount(); // 초기 실행
+});
+</script>
+{% endblock %}
